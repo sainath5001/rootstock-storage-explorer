@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+*.log
+*.pid
+*.seed
+*.pid.lock
+.DS_Store
+coverage/
+.nyc_output/
+.vscode/
+.idea/
+
