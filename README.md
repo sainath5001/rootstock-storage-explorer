@@ -112,7 +112,7 @@
 
 1. **Clone the repository:**
 ```bash
-git clone <repository-url>
+git clone https://github.com/sainath5001/rootstock-storage-explorer.git
 cd rootstock-storage-explorer
 ```
 
