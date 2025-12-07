@@ -6,7 +6,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function isValidAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{40}$/.test(address);
+  if (!address || typeof address !== 'string') return false;
+  // Trim whitespace
+  const trimmed = address.trim();
+  // Check format: 0x followed by exactly 40 hex characters (case-insensitive)
+  // Must be exactly 42 characters total (0x + 40 hex)
+  if (trimmed.length !== 42) return false;
+  return /^0x[a-fA-F0-9]{40}$/.test(trimmed);
 }
 
 export function formatAddress(address: string): string {

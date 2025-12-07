@@ -55,8 +55,10 @@ export async function storageRoutes(fastify: FastifyInstance) {
         return reply.send(result);
       } catch (error: any) {
         if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
           return reply.status(400).send({
             error: 'Validation error',
+            message: firstError?.message || 'Invalid contract address',
             details: error.errors,
           });
         }
@@ -100,8 +102,10 @@ export async function storageRoutes(fastify: FastifyInstance) {
         return reply.send(result);
       } catch (error: any) {
         if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
           return reply.status(400).send({
             error: 'Validation error',
+            message: firstError?.message || 'Invalid contract address',
             details: error.errors,
           });
         }
@@ -136,8 +140,10 @@ export async function storageRoutes(fastify: FastifyInstance) {
         });
       } catch (error: any) {
         if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
           return reply.status(400).send({
             error: 'Validation error',
+            message: firstError?.message || 'Invalid contract address',
             details: error.errors,
           });
         }

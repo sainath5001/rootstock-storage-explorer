@@ -3,23 +3,30 @@
 import { useState } from 'react';
 import { Header } from '@/components/header';
 import { ContractInput } from '@/components/contract-input';
+import { ContractVerificationModal } from '@/components/contract-verification-modal';
 import { SlotView } from '@/components/slot-view';
 import { VariableView } from '@/components/variable-view';
 import { useStorage } from '@/hooks/useStorage';
 import { formatAddress } from '@/lib/utils';
 import toast from 'react-hot-toast';
-import { Loader2, AlertCircle, Info } from 'lucide-react';
+import { Loader2, AlertCircle, Info, FileCode } from 'lucide-react';
 
 type ViewTab = 'slots' | 'variables';
 
 export default function Home() {
   const [contractAddress, setContractAddress] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ViewTab>('slots');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data, isLoading, error, refetch } = useStorage(contractAddress);
 
   const handleSearch = (address: string) => {
     setContractAddress(address);
     setActiveTab('slots');
+    setIsModalOpen(false);
+  };
+
+  const handleVerify = (address: string) => {
+    handleSearch(address);
   };
 
   const handleError = () => {
@@ -42,8 +49,24 @@ export default function Home() {
           <p className="text-muted-foreground mb-6">
             Enter a Rootstock contract address to inspect its storage slots and variables
           </p>
-          <ContractInput onSearch={handleSearch} isLoading={isLoading} />
+          <div className="flex justify-center">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-black font-bold rounded-lg transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl"
+            >
+              <FileCode className="w-5 h-5" />
+              Inspect Contract
+            </button>
+          </div>
         </div>
+
+        {/* Contract Verification Modal */}
+        <ContractVerificationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onVerify={handleVerify}
+          isLoading={isLoading}
+        />
 
         {/* Results Section */}
         {contractAddress && (
@@ -174,7 +197,7 @@ export default function Home() {
                   <h3 className="font-semibold mb-2">How to use StateLens</h3>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
                     <li>Enter a Rootstock smart contract address above</li>
-                    <li>Click "Inspect" to analyze the contract storage</li>
+                    <li>Click &quot;Inspect&quot; to analyze the contract storage</li>
                     <li>View storage slots in the Slot-By-Slot tab</li>
                     <li>View decoded variables in the Variable Inspector tab</li>
                   </ol>

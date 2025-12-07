@@ -43,9 +43,17 @@ export class StorageService {
     const normalizedAddress = normalizeAddress(contractAddress);
 
     // Check if it's a contract
-    const isContract = await rpcService.isContract(normalizedAddress);
-    if (!isContract) {
-      throw new Error('Address does not contain contract code');
+    try {
+      const isContract = await rpcService.isContract(normalizedAddress);
+      if (!isContract) {
+        throw new Error('Address does not contain contract code. This address is an EOA (Externally Owned Account), not a smart contract.');
+      }
+    } catch (error: any) {
+      // If RPC fails, provide helpful error message
+      if (error.message?.includes('fetch failed') || error.message?.includes('timeout') || error.message?.includes('ETIMEDOUT')) {
+        throw new Error('Unable to connect to Rootstock RPC node. Please check your network connection and RPC_URL configuration.');
+      }
+      throw error;
     }
 
     // Detect proxy
