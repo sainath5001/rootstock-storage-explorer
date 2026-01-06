@@ -50,12 +50,6 @@ export function ContractVerificationModal({
     // Clean and normalize the address
     const trimmedAddress = address.trim();
 
-    console.log('=== Validation Debug ===');
-    console.log('Raw address:', address);
-    console.log('Trimmed address:', trimmedAddress);
-    console.log('Address length:', trimmedAddress.length);
-    console.log('Address type:', typeof trimmedAddress);
-
     if (!trimmedAddress) {
       setError('Please enter a contract address');
       return;
@@ -63,20 +57,14 @@ export function ContractVerificationModal({
 
     // Validate before converting to lowercase
     const isValid = isValidAddress(trimmedAddress);
-    console.log('isValidAddress result:', isValid);
-    console.log('Regex test:', /^0x[a-fA-F0-9]{40}$/.test(trimmedAddress));
     
     if (!isValid) {
-      console.error('Validation failed!');
-      console.error('Address:', trimmedAddress);
-      console.error('Length:', trimmedAddress.length);
       setError('Invalid address format');
       return;
     }
 
     // Normalize to lowercase for backend consistency
     const normalizedAddress = trimmedAddress.toLowerCase();
-    console.log('Normalized address:', normalizedAddress);
     onVerify(normalizedAddress);
   };
 
@@ -135,8 +123,6 @@ export function ContractVerificationModal({
             onPaste={(e) => {
               e.preventDefault();
               const pastedText = e.clipboardData.getData('text').trim();
-              console.log('Pasted text:', pastedText);
-              console.log('Pasted length:', pastedText.length);
               if (pastedText && pastedText.startsWith('0x')) {
                 setAddress(pastedText);
                 setError('');

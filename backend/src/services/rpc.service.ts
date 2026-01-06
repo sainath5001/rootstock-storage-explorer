@@ -56,7 +56,6 @@ export class RPCService {
           const value = await this.getStorageAt(address, slot, blockNumber);
           return { slot, value };
         } catch (error: any) {
-          console.error(`Error fetching slot ${slot}:`, error.message);
           return {
             slot,
             value: '0x0000000000000000000000000000000000000000000000000000000000000000',

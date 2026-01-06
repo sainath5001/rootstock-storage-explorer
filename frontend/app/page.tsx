@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/header';
 import { ContractInput } from '@/components/contract-input';
 import { ContractVerificationModal } from '@/components/contract-verification-modal';
@@ -29,15 +29,11 @@ export default function Home() {
     handleSearch(address);
   };
 
-  const handleError = () => {
+  useEffect(() => {
     if (error) {
       toast.error(error.message || 'Failed to fetch storage data');
     }
-  };
-
-  if (error) {
-    handleError();
-  }
+  }, [error]);
 
   return (
     <div className="min-h-screen bg-background">

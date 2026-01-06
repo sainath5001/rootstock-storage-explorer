@@ -52,7 +52,6 @@ export class ProxyService {
 
       return { isProxy: false };
     } catch (error: any) {
-      console.error('Error detecting proxy:', error.message);
       return { isProxy: false };
     }
   }

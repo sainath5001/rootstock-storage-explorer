@@ -10,12 +10,12 @@ const server = Fastify({
     transport:
       appConfig.NODE_ENV === 'development'
         ? {
-            target: 'pino-pretty',
-            options: {
-              translateTime: 'HH:MM:ss Z',
-              ignore: 'pid,hostname',
-            },
-          }
+          target: 'pino-pretty',
+          options: {
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
+          },
+        }
         : undefined,
   },
 });
@@ -39,7 +39,7 @@ async function build() {
   // Error handler
   server.setErrorHandler((error, _request, reply) => {
     server.log.error(error);
-    
+
     if (error.validation) {
       return reply.status(400).send({
         error: 'Validation error',
@@ -64,7 +64,7 @@ async function build() {
 async function start() {
   try {
     await build();
-    
+
     const address = await server.listen({
       port: appConfig.PORT,
       host: '0.0.0.0',
@@ -72,7 +72,6 @@ async function start() {
 
     server.log.info(`🚀 Server listening on ${address}`);
     server.log.info(`📊 Environment: ${appConfig.NODE_ENV}`);
-    server.log.info(`🔗 RPC URL: ${appConfig.RPC_URL}`);
   } catch (error) {
     server.log.error(error);
     process.exit(1);

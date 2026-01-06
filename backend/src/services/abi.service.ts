@@ -33,7 +33,6 @@ export class ABIService {
 
       return null;
     } catch (error: any) {
-      console.error('Failed to fetch ABI from explorer:', error.message);
       return null;
     }
   }
