@@ -188,6 +188,77 @@ graph TB
     style VAR fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
 ```
 
+## 📊 Sequence Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend<br/>(Next.js)
+    participant B as Backend<br/>(Fastify)
+    participant PS as Proxy Service
+    participant AS as ABI Service
+    participant RS as RPC Service
+    participant RPC as Rootstock RPC
+    participant EXP as Block Explorer
+    
+    Note over U,EXP: Contract Storage Inspection Flow
+    
+    U->>F: Enter Contract Address
+    F->>F: Validate Address Format
+    alt Invalid Address
+        F-->>U: Show Error Message
+    else Valid Address
+        F->>B: GET /api/storage?address=0x...
+        B->>RS: Check if Contract Exists
+        RS->>RPC: eth_getCode(address)
+        RPC-->>RS: Contract Bytecode
+        RS-->>B: Contract Status
+        
+        alt Contract Not Found
+            B-->>F: Error: Invalid Contract
+            F-->>U: Display Error
+        else Contract Found
+            B->>PS: Detect Proxy Contract
+            PS->>RS: Get Storage at EIP-1967 Slot
+            RS->>RPC: eth_getStorageAt(implementation)
+            RPC-->>RS: Implementation Address
+            RS-->>PS: Proxy Info
+            PS-->>B: Proxy Detection Result
+            
+            B->>AS: Fetch Contract ABI
+            AS->>EXP: GET /api?module=contract&action=getabi
+            EXP-->>AS: Contract ABI JSON
+            AS->>AS: Parse & Validate ABI
+            AS-->>B: ABI Data (or null)
+            
+            B->>RS: Crawl Storage Slots (0 to MAX_SLOTS)
+            loop For Each Batch
+                RS->>RPC: Batch eth_getStorageAt(slots)
+                RPC-->>RS: Storage Slot Values (Hex)
+            end
+            RS-->>B: All Storage Slots Data
+            
+            B->>B: Decode Storage Values
+            Note over B: Type Detection:<br/>uint256, address, bool,<br/>bytes, string
+            
+            alt ABI Available
+                B->>B: Map Slots to Variable Names
+                B->>B: Create Variable View
+            end
+            
+            B->>B: Create Slot View (Raw + Decoded)
+            B-->>F: JSON Response<br/>(slotView + variableView)
+            
+            F->>F: Process & Store Data
+            F->>F: Render Slot-By-Slot View
+            F->>F: Render Variable Inspector View
+            F-->>U: Display Results
+        end
+    end
+    
+    Note over U,EXP: User can switch between views<br/>and copy values to clipboard
+```
+
 ## 🏗️ Architecture
 
 ```
