@@ -60,6 +60,134 @@
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 - 🔔 **Toast Notifications**: User-friendly feedback for all actions
 
+## 🔄 Workflow
+
+```mermaid
+flowchart TD
+    A[User Enters Contract Address] --> B[Frontend: Validate Address]
+    B -->|Valid| C[Frontend: Send API Request]
+    B -->|Invalid| A1[Show Error Message]
+    
+    C --> D[Backend: Receive Request]
+    D --> E[Backend: Check if Contract Exists]
+    E -->|Not Found| E1[Return Error]
+    E -->|Found| F[Backend: Detect Proxy Contract]
+    
+    F -->|Is Proxy| G[Resolve Implementation Address]
+    F -->|Not Proxy| H[Backend: Fetch ABI from Explorer]
+    G --> H
+    
+    H -->|ABI Found| I[Backend: Parse Storage Layout]
+    H -->|No ABI| J[Backend: Crawl Storage Slots via RPC]
+    I --> J
+    
+    J --> K[Backend: Batch Read Storage Slots]
+    K --> L[Backend: Decode Storage Values]
+    L --> M{Storage Type Detection}
+    
+    M -->|uint256| N1[Decode as Number]
+    M -->|address| N2[Decode as Address]
+    M -->|bool| N3[Decode as Boolean]
+    M -->|bytes| N4[Decode as Bytes]
+    M -->|string| N5[Decode as String]
+    
+    N1 --> O[Backend: Map Slots to Variables]
+    N2 --> O
+    N3 --> O
+    N4 --> O
+    N5 --> O
+    
+    O --> P[Backend: Return JSON Response]
+    P --> Q[Frontend: Receive Data]
+    
+    Q --> R[Frontend: Display Results]
+    R --> S1[Slot-By-Slot View]
+    R --> S2[Variable Inspector View]
+    
+    S1 --> T1[Show Raw Hex + Decoded Type]
+    S2 --> T2[Show Variable Names + Values]
+    
+    style A fill:#ff9500,stroke:#333,stroke-width:2px,color:#000
+    style D fill:#ff9500,stroke:#333,stroke-width:2px,color:#000
+    style J fill:#ff9500,stroke:#333,stroke-width:2px,color:#000
+    style R fill:#ff9500,stroke:#333,stroke-width:2px,color:#000
+    style S1 fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+    style S2 fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+```
+
+## 🔀 System Flow
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        U[User Browser]
+        UI[Next.js Frontend<br/>Port 3000]
+    end
+    
+    subgraph "API Layer"
+        API[Fastify Backend<br/>Port 3001]
+        RT[API Routes]
+        EH[Error Handler]
+    end
+    
+    subgraph "Service Layer"
+        RS[RPC Service<br/>viem client]
+        PS[Proxy Service<br/>EIP-1967 detection]
+        AS[ABI Service<br/>Explorer integration]
+        SS[Storage Service<br/>Slot decoder]
+        CS[Cache Service<br/>In-memory cache]
+    end
+    
+    subgraph "External Services"
+        RPC[Rootstock RPC Node<br/>eth_getStorageAt]
+        EXP[Block Explorer API<br/>Contract ABI]
+    end
+    
+    subgraph "Data Flow"
+        SLOT[Storage Slots<br/>Raw Hex Data]
+        DEC[Decoded Values<br/>Typed Data]
+        VAR[Variable Mapping<br/>ABI-based]
+    end
+    
+    U -->|HTTP Request| UI
+    UI -->|REST API| API
+    API --> RT
+    RT -->|Route Request| RS
+    RT -->|Route Request| PS
+    RT -->|Route Request| AS
+    RT -->|Route Request| SS
+    RT -->|Error| EH
+    
+    PS -->|Check Proxy| RS
+    AS -->|Fetch ABI| EXP
+    AS -->|Parse Layout| SS
+    
+    RS -->|eth_getStorageAt| RPC
+    RPC -->|Return Hex| SLOT
+    SLOT -->|Batch Process| SS
+    SS -->|Type Detection| DEC
+    DEC -->|Map Variables| VAR
+    
+    CS -.->|Cache Check| RS
+    CS -.->|Cache Check| AS
+    CS -.->|Store Result| SS
+    
+    VAR -->|JSON Response| RT
+    RT -->|HTTP Response| UI
+    UI -->|Render UI| U
+    
+    style U fill:#ff9500,stroke:#333,stroke-width:2px,color:#000
+    style UI fill:#ff9500,stroke:#333,stroke-width:2px,color:#000
+    style API fill:#ff9500,stroke:#333,stroke-width:2px,color:#000
+    style RS fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    style PS fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    style AS fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    style SS fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    style RPC fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+    style EXP fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+    style VAR fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
+```
+
 ## 🏗️ Architecture
 
 ```
